@@ -1,66 +1,73 @@
 const express = require('express');
 const path = require('path');
+var bodyParser = require('body-parser')
+const mongoose = require('mongoose');
+
+mongoose.connect('mongodb://localhost/hnv_node_express', {useNewUrlParser: true, useUnifiedTopology: true});
+let db = mongoose.connection;
+// Check Connection
+db.once('open', () => {
+    console.log('Connected to MongoDB');
+});
+// Check for DB errors
+db.on('error', (err) => {
+    console.log(err);
+});
+
 const app = express();  // Init App
+
+// Models
+let Hero = require('./models/hero');
 
 // View Engine
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
+// Body Parser Middleware
+app.use(bodyParser.urlencoded({ extended: false })) // parse application/x-www-form-urlencoded
+app.use(bodyParser.json())  // parse application/json
 
-app.get('/', (req, res) => {    // Home Route
+// Home Route
+app.get('/', (req, res) => {
 
-    let heroes = [
-        {
-            id: 1,
-            hero: 'Wonder Woman',
-            name: 'Diana Prince', 
-            body: 'Suspendisse vehicula quis lectus sit amet placerat. Nunc tempor, nisl quis lacinia consequat, lacus magna pellentesque purus, eget laoreet mi massa sit amet neque. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae',
-            pic: 'wonder-woman.png', 
-            cat: 'Immortal'
-        },
-        {
-            id: 2,
-            hero: 'Raven',
-            name: 'Rachel Roth', 
-            body: 'Suspendisse vehicula quis lectus sit amet placerat. Nunc tempor, nisl quis lacinia consequat, lacus magna pellentesque purus, eget laoreet mi massa sit amet neque. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae',
-            pic: 'raven.png', 
-            cat: 'Sorceress'
-        },
-        {
-            id: 3,
-            hero: 'Zatanna',
-            name: 'Zatanna Zatarra', 
-            body: 'Suspendisse vehicula quis lectus sit amet placerat. Nunc tempor, nisl quis lacinia consequat, lacus magna pellentesque purus, eget laoreet mi massa sit amet neque. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae',
-            pic: 'zatanna.png', 
-            cat: 'Magicaian'
-        },
-        {
-            id: 4,
-            hero: 'Supergirl',
-            name: 'Kara Zor-El', 
-            body: 'Suspendisse vehicula quis lectus sit amet placerat. Nunc tempor, nisl quis lacinia consequat, lacus magna pellentesque purus, eget laoreet mi massa sit amet neque. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae',
-            pic: 'supergirl.png', 
-            cat: 'Alien'
-        },
-        {
-            id: 5,
-            hero: 'Mary Marvel',
-            name: 'Mary Bromfield', 
-            body: 'Suspendisse vehicula quis lectus sit amet placerat. Nunc tempor, nisl quis lacinia consequat, lacus magna pellentesque purus, eget laoreet mi massa sit amet neque. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae',
-            pic: 'marry-marvel.png', 
-            cat: 'Champion'
+    Hero.find({}, (err, heroes) => {
+        if(err) {
+            console.log(err);
+        } else {
+            res.render('index', {
+                title: 'This is Heroes and Villains',
+                heroes: heroes
+            });
         }
-    ];
-
-    res.render('index', {
-        title: 'This is Heroes and Villains', 
-        heroes: heroes
     });
+
 });
 
 app.get('/heroes/add', (req, res) => {
     res.render('add_hero', {
         title: 'Add a Hero'
     });
+});
+
+// Store Hero Route
+app.post('/heroes/add', (req, res) => {
+    let hero = new Hero();  // Create instance of model class
+    hero.hero = req.body.hero;
+    hero.name = req.body.name;
+    hero.body = req.body.body;
+    hero.pic = req.body.pic;
+    hero.cat = req.body.cat;
+
+    hero.save((err) => {
+        if(err) {
+            console.log(err);
+            return;
+        } else {
+            res.redirect('/');
+        }
+    });
+
+    // console.log(req.body.hero);
+    // return;
 });
 
 const PORT = process.env.PORT || 5000;
