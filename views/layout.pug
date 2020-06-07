@@ -2,7 +2,21 @@ doctype html
 html
     head
         title Heroes and Villains :: #{title}
+        link(rel='stylesheet' href='/bower_components/bootstrap/dist/css/bootstrap.min.css')
+        link(href='/css/cover.css', rel='stylesheet')
     body
-        block content
-        footer
-            div Copyright &copy; 2020
+        .cover-container.d-flex.w-100.h-100.p-3.mx-auto.flex-column
+            header.masthead
+                 .inner
+                      h3.masthead-brand Heroes &amp; Villains
+                      nav.nav.nav-masthead.justify-content-center
+                           a.nav-link(href='/') Home
+                           a.nav-link(href='/heroes/add') Add Hero
+                           a.nav-link(href='/contact') Contact
+            main.inner.cover(role='main')
+                block content
+            footer.mastfoot.mt-auto
+                .inner
+                    p Copyright &copy; 2020
+            script(src='/bower_components/jquery/dist/jquery.min.js')
+            script(src='/bower_components/bootstrap/dist/js/bootstrap.min.js')

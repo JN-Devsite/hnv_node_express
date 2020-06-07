@@ -2,6 +2,7 @@ extends layout
 
 block content
     h1 #{title}
-    ul
+    ul.list-group
         each hero, i in heroes
-            li= hero.hero
+            li.list-group-item
+                a(href='#')=hero.hero

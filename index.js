@@ -26,6 +26,9 @@ app.set('view engine', 'pug');
 app.use(bodyParser.urlencoded({ extended: false })) // parse application/x-www-form-urlencoded
 app.use(bodyParser.json())  // parse application/json
 
+//Set Public Folder
+app.use(express.static(path.join(__dirname, 'public')));
+
 // Home Route
 app.get('/', (req, res) => {
 
